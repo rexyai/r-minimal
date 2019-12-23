@@ -1,5 +1,6 @@
-
 FROM alpine:3.10.3
+
+ENV _R_SHLIB_STRIP_=true
 
 RUN apk update &&                                                        \
     apk add gcc musl-dev gfortran g++ zlib-dev bzip2-dev xz-dev pcre-dev \
@@ -11,8 +12,8 @@ RUN apk update &&                                                        \
     cd R-3.6.2 &&                                                        \
     CXXFLAGS=-D__MUSL__ ./configure --with-recommended-packages=no       \
         --with-readline=no --with-x=no --enable-java=no                  \
-        --disable-openmp &&                                              \
-    make &&                                                              \
+        --enable-R-shlib &&                                              \
+    make -j$(nproc) &&                                                         \
     make install &&                                                      \
 ##
     rm -rf /R-3.6.2* &&                                                  \
@@ -29,7 +30,7 @@ RUN apk update &&                                                        \
     apk del gfortran gcc g++ musl-dev zlib-dev bzip2-dev xz-dev curl-dev \
         pcre-dev perl &&                                                 \
 ##
-    apk add libgfortran xz-libs libcurl libpcrecpp libbz2 &&             \
+    apk add libgfortran xz-libs libcurl libpcrecpp libbz2 libgomp &&     \
     rm -rf /var/cache/apk/*
 
 RUN touch /usr/local/lib/R/doc/html/R.css
