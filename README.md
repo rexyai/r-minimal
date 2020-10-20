@@ -44,6 +44,16 @@ Changes in this repository:
 * R shared library enabled
 * R is compiled with OpenMP support
 
+
+## Usage
+
+Get the image from
+[Docker Hub](https://hub.docker.com/repository/docker/rexyai/r-minimal):
+
+```
+docker pull docker.io/rexyai/r-minimal:latest
+```
+
 ## Dockerfile examples
 
 One of our main goals is to be able to use `rexyai/r-minimal` as a base

@@ -1,22 +1,32 @@
 FROM alpine:3.10.3
 
+MAINTAINER "r-hub admin" ds@rexy.ai
+
 ENV _R_SHLIB_STRIP_=true
+
+ARG R_VERSION=4.0.3
 
 RUN apk update &&                                                        \
     apk add gcc musl-dev gfortran g++ zlib-dev bzip2-dev xz-dev pcre-dev \
-    curl-dev make perl &&                                                \
+    pcre2-dev curl-dev make perl &&                                      \
 ##
-    wget https://cran.r-project.org/src/base/R-3/R-3.6.2.tar.gz &&       \
-    tar xzf R-3.6.2.tar.gz &&                                            \
+    if [[ "$R_VERSION" == "devel" ]]; then                               \
+        wget https://stat.ethz.ch/R/daily/R-devel.tar.gz;                \
+    elif [[ "$R_VERSION" == "patched" ]]; then                           \
+        wget https://stat.ethz.ch/R/daily/R-patched.tar.gz;              \
+    else                                                                 \
+        wget https://cran.r-project.org/src/base/R-${R_VERSION%%.*}/R-${R_VERSION}.tar.gz; \
+    fi &&                                                                \
+    tar xzf R-${R_VERSION}.tar.gz &&                                     \
 ##
-    cd R-3.6.2 &&                                                        \
+    cd R-${R_VERSION} &&                                                 \
     CXXFLAGS=-D__MUSL__ ./configure --with-recommended-packages=no       \
         --with-readline=no --with-x=no --enable-java=no                  \
         --enable-R-shlib &&                                              \
     make -j$(nproc) &&                                                         \
     make install &&                                                      \
 ##
-    rm -rf /R-3.6.2* &&                                                  \
+    rm -rf /R-${R_VERSION}* &&                                           \
 ##
     strip -x /usr/local/lib/R/bin/exec/R &&                              \
     strip -x /usr/local/lib/R/lib/* &&                                   \
